@@ -182,45 +182,40 @@
   </div>
 
 <script>
-// Země: ISO kód (flagcdn) + český název
+// Země: ISO kód (flagcdn) + český název.
+// Vybrané jen známé/větší státy – všech 27 zemí EU + známé evropské státy
+// + velké/známé světové státy. Záměrně bez drobných, pro děti neznámých vlajek.
 const COUNTRIES = [
-{c:"af",n:"Afghánistán"},{c:"al",n:"Albánie"},{c:"dz",n:"Alžírsko"},{c:"ad",n:"Andorra"},{c:"ao",n:"Angola"},
-{c:"ar",n:"Argentina"},{c:"am",n:"Arménie"},{c:"au",n:"Austrálie"},{c:"at",n:"Rakousko"},{c:"az",n:"Ázerbájdžán"},
-{c:"bs",n:"Bahamy"},{c:"bh",n:"Bahrajn"},{c:"bd",n:"Bangladéš"},{c:"bb",n:"Barbados"},{c:"by",n:"Bělorusko"},
-{c:"be",n:"Belgie"},{c:"bz",n:"Belize"},{c:"bj",n:"Benin"},{c:"bt",n:"Bhútán"},{c:"bo",n:"Bolívie"},
-{c:"ba",n:"Bosna a Hercegovina"},{c:"bw",n:"Botswana"},{c:"br",n:"Brazílie"},{c:"bn",n:"Brunej"},{c:"bg",n:"Bulharsko"},
-{c:"bf",n:"Burkina Faso"},{c:"bi",n:"Burundi"},{c:"kh",n:"Kambodža"},{c:"cm",n:"Kamerun"},{c:"ca",n:"Kanada"},
-{c:"cv",n:"Kapverdy"},{c:"cf",n:"Středoafrická republika"},{c:"td",n:"Čad"},{c:"cl",n:"Chile"},{c:"cn",n:"Čína"},
-{c:"co",n:"Kolumbie"},{c:"km",n:"Komory"},{c:"cg",n:"Kongo"},{c:"cd",n:"Demokratická republika Kongo"},{c:"cr",n:"Kostarika"},
-{c:"ci",n:"Pobřeží slonoviny"},{c:"hr",n:"Chorvatsko"},{c:"cu",n:"Kuba"},{c:"cy",n:"Kypr"},{c:"cz",n:"Česko"},
-{c:"dk",n:"Dánsko"},{c:"dj",n:"Džibutsko"},{c:"dm",n:"Dominika"},{c:"do",n:"Dominikánská republika"},{c:"ec",n:"Ekvádor"},
-{c:"eg",n:"Egypt"},{c:"sv",n:"Salvador"},{c:"gq",n:"Rovníková Guinea"},{c:"er",n:"Eritrea"},{c:"ee",n:"Estonsko"},
-{c:"et",n:"Etiopie"},{c:"fj",n:"Fidži"},{c:"fi",n:"Finsko"},{c:"fr",n:"Francie"},{c:"ga",n:"Gabon"},
-{c:"gm",n:"Gambie"},{c:"ge",n:"Gruzie"},{c:"de",n:"Německo"},{c:"gh",n:"Ghana"},{c:"gr",n:"Řecko"},
-{c:"gd",n:"Grenada"},{c:"gt",n:"Guatemala"},{c:"gn",n:"Guinea"},{c:"gw",n:"Guinea-Bissau"},{c:"gy",n:"Guyana"},
-{c:"ht",n:"Haiti"},{c:"hn",n:"Honduras"},{c:"hu",n:"Maďarsko"},{c:"is",n:"Island"},{c:"in",n:"Indie"},
-{c:"id",n:"Indonésie"},{c:"ir",n:"Írán"},{c:"iq",n:"Irák"},{c:"ie",n:"Irsko"},{c:"il",n:"Izrael"},
-{c:"it",n:"Itálie"},{c:"jm",n:"Jamajka"},{c:"jp",n:"Japonsko"},{c:"jo",n:"Jordánsko"},{c:"kz",n:"Kazachstán"},
-{c:"ke",n:"Keňa"},{c:"kw",n:"Kuvajt"},{c:"kg",n:"Kyrgyzstán"},{c:"la",n:"Laos"},{c:"lv",n:"Lotyšsko"},
-{c:"lb",n:"Libanon"},{c:"ls",n:"Lesotho"},{c:"lr",n:"Libérie"},{c:"ly",n:"Libye"},{c:"li",n:"Lichtenštejnsko"},
-{c:"lt",n:"Litva"},{c:"lu",n:"Lucembursko"},{c:"mk",n:"Severní Makedonie"},{c:"mg",n:"Madagaskar"},{c:"mw",n:"Malawi"},
-{c:"my",n:"Malajsie"},{c:"mv",n:"Maledivy"},{c:"ml",n:"Mali"},{c:"mt",n:"Malta"},{c:"mr",n:"Mauritánie"},
-{c:"mu",n:"Mauricius"},{c:"mx",n:"Mexiko"},{c:"md",n:"Moldavsko"},{c:"mc",n:"Monako"},{c:"mn",n:"Mongolsko"},
-{c:"me",n:"Černá Hora"},{c:"ma",n:"Maroko"},{c:"mz",n:"Mosambik"},{c:"mm",n:"Myanmar"},{c:"na",n:"Namibie"},
-{c:"np",n:"Nepál"},{c:"nl",n:"Nizozemsko"},{c:"nz",n:"Nový Zéland"},{c:"ni",n:"Nikaragua"},{c:"ne",n:"Niger"},
-{c:"ng",n:"Nigérie"},{c:"kp",n:"Severní Korea"},{c:"no",n:"Norsko"},{c:"om",n:"Omán"},{c:"pk",n:"Pákistán"},
-{c:"pa",n:"Panama"},{c:"pg",n:"Papua-Nová Guinea"},{c:"py",n:"Paraguay"},{c:"pe",n:"Peru"},{c:"ph",n:"Filipíny"},
-{c:"pl",n:"Polsko"},{c:"pt",n:"Portugalsko"},{c:"qa",n:"Katar"},{c:"ro",n:"Rumunsko"},{c:"ru",n:"Rusko"},
-{c:"rw",n:"Rwanda"},{c:"sm",n:"San Marino"},{c:"sa",n:"Saúdská Arábie"},{c:"sn",n:"Senegal"},{c:"rs",n:"Srbsko"},
-{c:"sl",n:"Sierra Leone"},{c:"sg",n:"Singapur"},{c:"sk",n:"Slovensko"},{c:"si",n:"Slovinsko"},{c:"so",n:"Somálsko"},
-{c:"za",n:"Jihoafrická republika"},{c:"kr",n:"Jižní Korea"},{c:"ss",n:"Jižní Súdán"},{c:"es",n:"Španělsko"},{c:"lk",n:"Srí Lanka"},
-{c:"sd",n:"Súdán"},{c:"sr",n:"Surinam"},{c:"sz",n:"Eswatini"},{c:"se",n:"Švédsko"},{c:"ch",n:"Švýcarsko"},
-{c:"sy",n:"Sýrie"},{c:"tw",n:"Tchaj-wan"},{c:"tj",n:"Tádžikistán"},{c:"tz",n:"Tanzanie"},{c:"th",n:"Thajsko"},
-{c:"tl",n:"Východní Timor"},{c:"tg",n:"Togo"},{c:"to",n:"Tonga"},{c:"tt",n:"Trinidad a Tobago"},{c:"tn",n:"Tunisko"},
-{c:"tr",n:"Turecko"},{c:"tm",n:"Turkmenistán"},{c:"ug",n:"Uganda"},{c:"ua",n:"Ukrajina"},{c:"ae",n:"Spojené arabské emiráty"},
-{c:"gb",n:"Spojené království"},{c:"us",n:"Spojené státy americké"},{c:"uy",n:"Uruguay"},{c:"uz",n:"Uzbekistán"},{c:"vu",n:"Vanuatu"},
-{c:"va",n:"Vatikán"},{c:"ve",n:"Venezuela"},{c:"vn",n:"Vietnam"},{c:"ye",n:"Jemen"},{c:"zm",n:"Zambie"},
-{c:"zw",n:"Zimbabwe"}
+// EU (27)
+{c:"at",n:"Rakousko"},{c:"be",n:"Belgie"},{c:"bg",n:"Bulharsko"},{c:"hr",n:"Chorvatsko"},{c:"cy",n:"Kypr"},
+{c:"cz",n:"Česko"},{c:"dk",n:"Dánsko"},{c:"ee",n:"Estonsko"},{c:"fi",n:"Finsko"},{c:"fr",n:"Francie"},
+{c:"de",n:"Německo"},{c:"gr",n:"Řecko"},{c:"hu",n:"Maďarsko"},{c:"ie",n:"Irsko"},{c:"it",n:"Itálie"},
+{c:"lv",n:"Lotyšsko"},{c:"lt",n:"Litva"},{c:"lu",n:"Lucembursko"},{c:"mt",n:"Malta"},{c:"nl",n:"Nizozemsko"},
+{c:"pl",n:"Polsko"},{c:"pt",n:"Portugalsko"},{c:"ro",n:"Rumunsko"},{c:"sk",n:"Slovensko"},{c:"si",n:"Slovinsko"},
+{c:"es",n:"Španělsko"},{c:"se",n:"Švédsko"},
+// Ostatní Evropa (známé)
+{c:"gb",n:"Spojené království"},{c:"no",n:"Norsko"},{c:"ch",n:"Švýcarsko"},{c:"is",n:"Island"},
+{c:"ua",n:"Ukrajina"},{c:"rs",n:"Srbsko"},{c:"ru",n:"Rusko"},{c:"by",n:"Bělorusko"},
+{c:"ba",n:"Bosna a Hercegovina"},{c:"al",n:"Albánie"},{c:"mk",n:"Severní Makedonie"},{c:"me",n:"Černá Hora"},
+{c:"md",n:"Moldavsko"},{c:"mc",n:"Monako"},{c:"li",n:"Lichtenštejnsko"},{c:"sm",n:"San Marino"},
+{c:"va",n:"Vatikán"},{c:"ad",n:"Andorra"},
+// Amerika
+{c:"us",n:"Spojené státy americké"},{c:"ca",n:"Kanada"},{c:"mx",n:"Mexiko"},{c:"br",n:"Brazílie"},
+{c:"ar",n:"Argentina"},{c:"cl",n:"Chile"},{c:"co",n:"Kolumbie"},{c:"pe",n:"Peru"},{c:"ve",n:"Venezuela"},
+{c:"cu",n:"Kuba"},
+// Asie
+{c:"cn",n:"Čína"},{c:"jp",n:"Japonsko"},{c:"kr",n:"Jižní Korea"},{c:"kp",n:"Severní Korea"},
+{c:"in",n:"Indie"},{c:"id",n:"Indonésie"},{c:"th",n:"Thajsko"},{c:"vn",n:"Vietnam"},{c:"ph",n:"Filipíny"},
+{c:"my",n:"Malajsie"},{c:"sg",n:"Singapur"},{c:"tw",n:"Tchaj-wan"},{c:"pk",n:"Pákistán"},{c:"bd",n:"Bangladéš"},
+{c:"kz",n:"Kazachstán"},
+// Blízký východ
+{c:"tr",n:"Turecko"},{c:"il",n:"Izrael"},{c:"sa",n:"Saúdská Arábie"},{c:"ae",n:"Spojené arabské emiráty"},
+{c:"qa",n:"Katar"},{c:"ir",n:"Írán"},{c:"iq",n:"Irák"},
+// Afrika (velké/známé)
+{c:"eg",n:"Egypt"},{c:"za",n:"Jihoafrická republika"},{c:"ng",n:"Nigérie"},{c:"ke",n:"Keňa"},
+{c:"ma",n:"Maroko"},{c:"dz",n:"Alžírsko"},{c:"et",n:"Etiopie"},
+// Oceánie
+{c:"au",n:"Austrálie"},{c:"nz",n:"Nový Zéland"}
 ];
 
 const flagUrl = i => `https://flagcdn.com/${COUNTRIES[i].c}.svg`;
