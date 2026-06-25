@@ -178,6 +178,12 @@
     text-shadow: 0 2px 12px rgba(0,0,0,.5);
   }
   @keyframes pop-in { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .celebrate.small .big { font-size: clamp(36px, 9vmin, 86px); }
+  .celebrate.mega .big {
+    font-size: clamp(54px, 16vmin, 170px);
+    animation: pop-in .45s cubic-bezier(.2,1.4,.5,1), wiggle 1.6s ease-in-out infinite .45s;
+  }
+  @keyframes wiggle { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
 </style>
 </head>
 <body>
@@ -328,7 +334,10 @@ function choose(el, isCorrect, correctIdx, sel){
     feedback.textContent = PRAISE[Math.floor(Math.random()*PRAISE.length)] + " 🎉";
     feedback.className = "feedback ok";
     beep(true);
-    if (right % 10 === 0) celebrate();   // odměna za každých 10 správných
+    // odstupňovaná odměna (priorita 50 > 10 > 5)
+    if (right % 50 === 0) celebrate('mega');
+    else if (right % 10 === 0) celebrate('big');
+    else if (right % 5 === 0) celebrate('small');
   } else {
     el.classList.remove('dim'); el.classList.add('wrong');
     wrong++; scoreWrong.textContent = wrong;
@@ -368,10 +377,10 @@ function beep(ok){
   } catch(e){}
 }
 
-function fanfare(){
+function fanfare(notes){
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    [523, 659, 784, 1047].forEach((f, i) => {   // C – E – G – vysoké C
+    notes.forEach((f, i) => {
       const o = actx.createOscillator(), g = actx.createGain();
       o.type = "triangle"; o.frequency.value = f;
       o.connect(g); g.connect(actx.destination);
@@ -384,18 +393,25 @@ function fanfare(){
   } catch(e){}
 }
 
-// ---- ohňostroj (odměna) ----
+// ---- ohňostroj (odstupňovaná odměna) ----
+const PARTY = {
+  small: { dur: 1500, spawnEvery: 420, burst: 26, title: "⭐ Super! ⭐",     notes: [659, 988] },
+  big:   { dur: 2800, spawnEvery: 320, burst: 50, title: "🎉 Bravo! 🎉",     notes: [523, 659, 784, 1047] },
+  mega:  { dur: 5400, spawnEvery: 180, burst: 70, title: "🏆 PARÁDA!!! 🏆",  notes: [523, 659, 784, 1047, 880, 1047, 1319, 1568] }
+};
+
 const fw = document.getElementById('fw');
 const fwCtx = fw.getContext('2d');
 const celebrateEl = document.getElementById('celebrate');
+const celebrateBig = celebrateEl.querySelector('.big');
 const celebrateSub = document.getElementById('celebrateSub');
-let particles = [], fwRAF = null, fwEnd = 0, lastSpawn = 0;
+let particles = [], fwRAF = null, fwEnd = 0, lastSpawn = 0, fwSpawnEvery = 320, fwBurst = 50;
 
 function sizeFw(){ fw.width = innerWidth; fw.height = innerHeight; }
 addEventListener('resize', sizeFw);
 
-function burst(x, y){
-  const n = 45 + Math.floor(Math.random() * 30);
+function burst(x, y, size){
+  const n = size + Math.floor(Math.random() * 30);
   const hue = Math.floor(Math.random() * 360);
   for (let i = 0; i < n; i++){
     const a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 5.5;
@@ -405,8 +421,8 @@ function burst(x, y){
 
 function fwLoop(t){
   fwCtx.clearRect(0, 0, fw.width, fw.height);
-  if (t < fwEnd && t - lastSpawn > 320){
-    burst(fw.width*(0.15 + Math.random()*0.7), fw.height*(0.12 + Math.random()*0.45));
+  if (t < fwEnd && t - lastSpawn > fwSpawnEvery){
+    burst(fw.width*(0.12 + Math.random()*0.76), fw.height*(0.1 + Math.random()*0.5), fwBurst);
     lastSpawn = t;
   }
   particles.forEach(p => {
@@ -424,17 +440,21 @@ function fwLoop(t){
   else { fw.style.display = 'none'; fwCtx.clearRect(0, 0, fw.width, fw.height); }
 }
 
-function celebrate(){
+function celebrate(level){
+  const cfg = PARTY[level] || PARTY.big;
   sizeFw();
   fw.style.display = 'block';
+  celebrateBig.textContent = cfg.title;
   celebrateSub.textContent = right + " správně! 🌟";
-  celebrateEl.classList.add('show');
-  fanfare();
-  fwEnd = performance.now() + 2800; lastSpawn = 0;
-  burst(fw.width*0.3, fw.height*0.4); burst(fw.width*0.7, fw.height*0.35);
+  celebrateEl.className = 'celebrate show ' + level;
+  fanfare(cfg.notes);
+  fwSpawnEvery = cfg.spawnEvery; fwBurst = cfg.burst;
+  fwEnd = performance.now() + cfg.dur; lastSpawn = 0;
+  burst(fw.width*0.3, fw.height*0.4, cfg.burst);
+  burst(fw.width*0.7, fw.height*0.35, cfg.burst);
   if (fwRAF) cancelAnimationFrame(fwRAF);
   fwRAF = requestAnimationFrame(fwLoop);
-  setTimeout(() => celebrateEl.classList.remove('show'), 2800);
+  setTimeout(() => celebrateEl.classList.remove('show'), cfg.dur);
 }
 
 document.querySelectorAll('.mode-btn').forEach(b =>
