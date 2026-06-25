@@ -273,7 +273,9 @@ function pick(n, exclude=[]){
 }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 
+let autoTimer = null;
 function newRound(){
+  clearTimeout(autoTimer);   // zruší případný automatický přechod
   answered = false;
   feedback.textContent = ""; feedback.className = "feedback";
   nextBtn.classList.add('hidden');
@@ -346,6 +348,7 @@ function choose(el, isCorrect, correctIdx, sel){
     beep(false);
   }
   nextBtn.classList.remove('hidden');
+  autoTimer = setTimeout(newRound, 3000);   // po 3 s přejde samo na další
 }
 
 nextBtn.addEventListener('click', newRound);
