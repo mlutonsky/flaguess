@@ -35,6 +35,18 @@
 
   /* ---- kompaktní horní lišta ---- */
   .topbar { display: flex; align-items: center; gap: var(--gap); }
+
+  /* celoobrazovkové tlačítko v levém horním rohu */
+  .fs-btn {
+    flex-shrink: 0;
+    width: 54px; height: 54px;
+    border: 3px solid var(--line);
+    background: #fff; color: var(--ink);
+    border-radius: 14px; cursor: pointer; transition: .12s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(20px, 3vmin, 26px); line-height: 1;
+  }
+  .fs-btn:active { transform: scale(.95); background: #eaf2ff; }
   .modes { display: flex; gap: 8px; flex: 1; min-width: 0; }
   .mode-btn {
     flex: 1; min-width: 0;
@@ -155,6 +167,12 @@
   .next-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #cfa400; }
   .hidden { display: none !important; }
 
+  /* „tajný“ režim čtení: schová všechny reproduktory (TTS), aby děti musely číst */
+  body.hush .speaker { display: none !important; }
+  /* krátký záblesk skóre při přepnutí režimu (zpětná vazba pro rodiče) */
+  .score.flash { animation: scoreFlash .5s ease; }
+  @keyframes scoreFlash { 0%,100% { transform: none; } 50% { transform: scale(1.25); filter: brightness(1.4); } }
+
   /* úzký mobil na výšku: jména pod sebe */
   @media (orientation: portrait) and (max-width: 560px) {
     .answers.names { grid-template-columns: 1fr; }
@@ -190,11 +208,12 @@
 </head>
 <body>
   <div class="topbar">
+    <button class="fs-btn" id="fsBtn" aria-label="Celá obrazovka" title="Celá obrazovka">⛶</button>
     <div class="modes">
       <button class="mode-btn active" data-mode="name">🏳️ Hádej zemi</button>
       <button class="mode-btn" data-mode="image">🚩 Hádej vlajku</button>
     </div>
-    <div class="score">
+    <div class="score" id="score">
       <span class="ok-s">✓ <span id="scoreRight">0</span></span>
       <span class="bad-s">✗ <span id="scoreWrong">0</span></span>
     </div>
@@ -360,6 +379,7 @@ let voices = [];
 function loadVoices(){ try { voices = speechSynthesis.getVoices() || []; } catch(e){} }
 if ('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 function speak(text){
+  if (hush) return;                 // tichý režim: nečteme nahlas
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
@@ -469,6 +489,46 @@ document.querySelectorAll('.mode-btn').forEach(b =>
     mode = b.dataset.mode;
     newRound();
   }));
+
+// ---- celá obrazovka ----
+const fsBtn = document.getElementById('fsBtn');
+function isFullscreen(){ return document.fullscreenElement || document.webkitFullscreenElement; }
+function toggleFullscreen(){
+  const el = document.documentElement;
+  if (!isFullscreen()){
+    (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el);
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
+  }
+}
+function syncFsIcon(){ fsBtn.textContent = isFullscreen() ? '✕' : '⛶'; }
+fsBtn.addEventListener('click', toggleFullscreen);
+document.addEventListener('fullscreenchange', syncFsIcon);
+document.addEventListener('webkitfullscreenchange', syncFsIcon);
+
+// ---- „tajný“ režim čtení: trojklik na skóre skryje/zobrazí TTS ----
+// Zapamatuje se v localStorage, aby ho restart stránky neobešel.
+let hush = false;
+try { hush = localStorage.getItem('fg_hush') === '1'; } catch(e){}
+function applyHush(){ document.body.classList.toggle('hush', hush); }
+applyHush();
+
+const scoreEl = document.getElementById('score');
+let clickTimer = null, clickCount = 0;
+scoreEl.addEventListener('click', () => {
+  clickCount++;
+  clearTimeout(clickTimer);
+  if (clickCount >= 3){
+    clickCount = 0;
+    hush = !hush;
+    try { localStorage.setItem('fg_hush', hush ? '1' : '0'); } catch(e){}
+    if (hush) { try { speechSynthesis.cancel(); } catch(e){} }
+    applyHush();
+    scoreEl.classList.remove('flash'); void scoreEl.offsetWidth; scoreEl.classList.add('flash');
+  } else {
+    clickTimer = setTimeout(() => { clickCount = 0; }, 600);
+  }
+});
 
 newRound();
 </script>
